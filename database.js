@@ -33,5 +33,22 @@ window.GardenDB = (() => {
   });
  }
  async function changePassword(password){return request('/auth/v1/user',{method:'PUT',body:{password}});}
- return {configured,login,logout,profile,rest,begin,changePassword};
+ // Used only by the private chat for authenticated Storage and Realtime.
+ async function chatAccess(){await token();return {url,publicKey:key,accessToken:session.access_token};}
+ return {configured,login,logout,profile,rest,begin,changePassword,chatAccess};
+})();
+
+// Add one unobtrusive chat shortcut to the existing gardens' footer only.
+// No navbar changes, admin links, or replacements of your garden HTML files.
+(function(){
+ function link(){
+  if(!document.getElementById('grid'))return;
+  const footer=document.querySelector('.wrap > footer');
+  if(!footer||footer.querySelector('[data-garden-chat-link]'))return;
+  const a=document.createElement('a');a.href='chat.html';a.textContent='Our chat ♡';
+  a.dataset.gardenChatLink='true';a.className='export';
+  a.style.cssText='color:#526647;text-decoration:underline;text-underline-offset:4px;font-size:10px;white-space:nowrap';
+  footer.insertBefore(a,footer.lastElementChild);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',link,{once:true});else link();
 })();
