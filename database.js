@@ -38,17 +38,43 @@ window.GardenDB = (() => {
  return {configured,login,logout,profile,rest,begin,changePassword,chatAccess};
 })();
 
-// Add one unobtrusive chat shortcut to the existing gardens' footer only.
-// No navbar changes, admin links, or replacements of your garden HTML files.
+// Visible chat shortcut on garden pages only. Hidden with the private garden
+// until login succeeds. No changes to cards, garden layout, or admin navigation.
 (function(){
  function link(){
   if(!document.getElementById('grid'))return;
-  const footer=document.querySelector('.wrap > footer');
-  if(!footer||footer.querySelector('[data-garden-chat-link]'))return;
-  const a=document.createElement('a');a.href='chat.html';a.textContent='Our chat ♡';
-  a.dataset.gardenChatLink='true';a.className='export';
-  a.style.cssText='color:#526647;text-decoration:underline;text-underline-offset:4px;font-size:10px;white-space:nowrap';
-  footer.insertBefore(a,footer.lastElementChild);
+  const host=document.getElementById('private-content');
+  if(!host||host.querySelector('[data-garden-chat-link]'))return;
+  const style=document.createElement('style');
+  style.textContent=`
+   .garden-chat-launcher,.garden-chat-launcher:link,.garden-chat-launcher:visited{
+    position:fixed;right:max(22px,env(safe-area-inset-right));
+    bottom:calc(22px + env(safe-area-inset-bottom));z-index:8;
+    display:inline-flex;align-items:center;gap:10px;
+    padding:15px 21px;border:1px solid #728565;border-radius:50px;
+    background:#526647;color:#fffaf0;text-decoration:none;
+    box-shadow:0 5px 24px #394b3330;font:13px/1.2 Arial,Helvetica,sans-serif;
+    letter-spacing:.2px;white-space:nowrap;transition:transform .2s,background .2s,box-shadow .2s;
+   }
+   .garden-chat-launcher:hover{background:#43573a;color:#fffaf0;
+    transform:translateY(-3px);box-shadow:0 8px 26px #394b3340}
+   .garden-chat-launcher:focus-visible{outline:3px solid #a8b998;outline-offset:4px}
+   .garden-chat-launcher svg{width:20px;height:20px;flex-shrink:0}
+   @media(max-width:600px){.garden-chat-launcher,.garden-chat-launcher:link,.garden-chat-launcher:visited{
+    right:max(16px,env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));padding:14px 18px;font-size:12px}}
+   @media(prefers-reduced-motion:reduce){.garden-chat-launcher{transition:none!important}}
+  `;
+  document.head.append(style);
+  const a=document.createElement('a');a.href='chat.html';a.className='garden-chat-launcher';
+  a.dataset.gardenChatLink='true';a.setAttribute('aria-label','Open our private chat');
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');
+  svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.5');
+  svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');
+  const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+  path.setAttribute('d','M20 11a8 8 0 0 1-8 8H5l-4 3 1.6-6A8 8 0 1 1 20 11Z M7 10h7 M7 14h4');
+  svg.append(path);const text=document.createElement('span');text.textContent='Our chat ♡';
+  a.append(svg,text);host.append(a);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',link,{once:true});else link();
 })();
