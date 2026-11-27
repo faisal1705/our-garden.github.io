@@ -42,4 +42,43 @@ function installGardenSignOut(){
  footer.append(button);
 }
 
-(async()=>{user=await GardenDB.begin();installGardenSignOut();try{await load();}catch(err){notify('Unable to load: '+err.message);$('empty').textContent='Could not load your garden. Check your connection and setup, then reload.';$('empty').style.display='block';}})();
+// Personal header entrance. Authorization stays in the existing login/RLS.
+function installMySpaceLink(){
+ const header=document.querySelector('.wrap > header');
+ if(!header||document.getElementById('my-space-link'))return;
+ if(!user||!['faisal','zehna'].includes(user.role))return;
+ const style=document.createElement('style');
+ style.textContent=`
+ .wrap>header .my-space-link,.wrap>header .my-space-link:visited{
+  display:inline-flex;align-items:center;gap:8px;background:#edf0e3;
+  border:1px solid #b9c7a9;border-radius:5px;color:#526647;
+  padding:11px 15px;margin-right:12px;font:12px Arial,Helvetica,sans-serif;
+  white-space:nowrap;text-decoration:none;transition:background .2s,transform .2s;
+ }
+ .wrap>header .my-space-link:hover{background:#e2e8d6;transform:translateY(-1px)}
+ .wrap>header .my-space-link:focus-visible{outline:2px solid #81956c;outline-offset:4px}
+ .wrap>header .my-space-link svg{width:15px;height:15px;flex-shrink:0}
+ .wrap>header>a,.wrap>header>a:visited{color:#526647}
+ @media(max-width:700px){
+  .wrap>header{height:auto;min-height:80px;flex-wrap:wrap;gap:10px;padding:16px 0}
+  .wrap>header .brand{flex:1 0 calc(100% - 120px)}
+  .wrap>header .my-space-link{order:1;margin-right:0;padding:10px 13px;font-size:11px}
+  .wrap>header>a:not(.my-space-link){order:2;margin-left:0!important;margin-right:0!important}
+  .wrap>header .write{order:3}
+ }
+ @media(prefers-reduced-motion:reduce){.wrap>header .my-space-link{transition:none}}
+ `;
+ document.head.append(style);
+ const link=document.createElement('a');link.id='my-space-link';link.className='my-space-link';
+ link.href=user.role==='faisal'?'admin-faisal.html':'admin-zehna.html';
+ link.setAttribute('aria-label','Open my personal space');
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ for(const [key,value] of Object.entries({viewBox:'0 0 24 24',fill:'none',stroke:'currentColor','stroke-width':'1.4','aria-hidden':'true'}))svg.setAttribute(key,value);
+ const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d','M20 21a8 8 0 0 0-16 0');
+ const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');circle.setAttribute('cx','12');circle.setAttribute('cy','7');circle.setAttribute('r','4');svg.append(path,circle);
+ const label=document.createElement('span');label.textContent='My space';
+ const arrow=document.createElement('span');arrow.textContent='↗';arrow.setAttribute('aria-hidden','true');link.append(svg,label,arrow);
+ header.insertBefore(link,document.getElementById('open-form'));
+}
+
+(async()=>{user=await GardenDB.begin();installMySpaceLink();installGardenSignOut();try{await load();}catch(err){notify('Unable to load: '+err.message);$('empty').textContent='Could not load your garden. Check your connection and setup, then reload.';$('empty').style.display='block';}})();
