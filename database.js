@@ -29,7 +29,7 @@ window.GardenDB = (() => {
   return new Promise(resolve=>{
    form.addEventListener('submit',async e=>{e.preventDefault();button.disabled=true;status.textContent='Signing in…';try{await login(document.getElementById('auth-email').value.trim(),document.getElementById('auth-password').value);document.getElementById('auth-password').value='';resolve(await enter());}catch(err){showError(err);}finally{button.disabled=false;}});
    if(!configured()){status.textContent='Not connected yet. Follow GUIDE.md, then fill in config.js. Nothing is being sent or saved online.';button.disabled=true;return;}
-   if(session)enter().then(resolve).catch(e=>{showError(e);});else status.textContent='Private access · Faisal and Zehna only.';
+   if(session)enter().then(resolve).catch(e=>{showError(e);});else status.textContent='Private · just you and me.';
   });
  }
  async function changePassword(password){return request('/auth/v1/user',{method:'PUT',body:{password}});}
