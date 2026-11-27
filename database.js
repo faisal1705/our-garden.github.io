@@ -78,3 +78,13 @@ window.GardenDB = (() => {
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',link,{once:true});else link();
 })();
+
+// Inbox is loaded only on the two garden pages. Relative to this script's URL.
+(function(){
+ if(!document.getElementById('grid'))return;
+ const current=document.currentScript;
+ if(document.querySelector('script[data-garden-inbox]'))return;
+ const s=document.createElement('script');
+ s.src=new URL('inbox.js?v=reads-1',current.src).href;
+ s.dataset.gardenInbox='true';document.head.append(s);
+})();
