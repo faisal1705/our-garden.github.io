@@ -88,3 +88,20 @@ window.GardenDB = (() => {
  s.src=new URL('inbox.js?v=reads-1',current.src).href;
  s.dataset.gardenInbox='true';document.head.append(s);
 })();
+
+// Film shortcut: garden footer only. Keep the existing chat/inbox shortcuts unchanged.
+(function(){
+ function addFilmLink(){
+  if(!document.getElementById('grid'))return;
+  const host=document.getElementById('private-content');
+  const footer=host&&host.querySelector('footer');
+  if(!footer||footer.querySelector('[data-garden-film-link]'))return;
+  const style=document.createElement('style');
+  style.textContent='.garden-film-link,.garden-film-link:link,.garden-film-link:visited{color:#526647;text-decoration:none;font:12px Georgia,serif;white-space:nowrap}.garden-film-link:hover{text-decoration:underline;text-underline-offset:4px}.garden-film-link:focus-visible{outline:2px solid #8b9b7c;outline-offset:4px}';
+  document.head.append(style);
+  const link=document.createElement('a');link.href='film.html';link.className='garden-film-link';link.dataset.gardenFilmLink='true';link.textContent='Film Roll ↗';
+  link.setAttribute('aria-label','Open our shared film rolls');
+  footer.append(link);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addFilmLink,{once:true});else addFilmLink();
+})();
