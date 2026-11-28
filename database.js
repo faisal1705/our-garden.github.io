@@ -105,3 +105,30 @@ window.GardenDB = (() => {
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addFilmLink,{once:true});else addFilmLink();
 })();
+
+// Optional Zehna visit notification. Preserves existing auth, Film, chat and inbox.
+(function(){
+ const db=window.GardenDB;
+ if(!db||db._onlineVisitHook)return;
+ const source=document.currentScript?.src||new URL('database.js',location.href).href;
+ const originalBegin=db.begin;
+ let loading=false;
+ db._onlineVisitHook=true;
+ db.begin=function(...args){
+  return originalBegin.apply(db,args).then(user=>{
+   if(user.role==='zehna'){
+    try{
+     if(window.GardenOnlineVisit)window.GardenOnlineVisit.start(user);
+     else if(!loading){
+      loading=true;const script=document.createElement('script');
+      script.src=new URL('website-online-presence.js?v=online-1',source).href;
+      script.onload=()=>{try{window.GardenOnlineVisit?.start(user)}catch{/* Optional only. */}};
+      script.onerror=()=>{loading=false;script.remove()};
+      document.head.append(script);
+     }
+    }catch{/* A failed optional notification must not break sign-in. */}
+   }
+   return user;
+  });
+ };
+})();
